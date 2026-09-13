@@ -10,7 +10,19 @@ Route::get('/', function () {
     return redirect()->route('itens.index');
 });
 
-Route::resource('categorias', CategoriaController::class)->except('show');
-Route::resource('locais', LocalController::class)->except('show');
-Route::resource('itens', ItemController::class);
-Route::resource('movimentacoes', MovimentacaoController::class)->only(['index', 'create', 'store', 'destroy']);
+Route::middleware('auth')->group(function () {
+
+    Route::resource('categorias', CategoriaController::class)
+        ->except('show')
+        ->middleware('role:admin,gerente');
+
+    Route::resource('locais', LocalController::class)
+        ->except('show')
+        ->middleware('role:admin,gerente');
+
+    Route::resource('itens', ItemController::class)
+        ->middleware('role:admin,gerente');
+
+    Route::resource('movimentacoes', MovimentacaoController::class)
+        ->only(['index', 'create', 'store', 'destroy']);
+});
