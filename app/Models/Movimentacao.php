@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Movimentacao extends Model
 {
+    protected $table = 'movimentacoes';
+    
     use HasFactory;
 
     protected $fillable = [
