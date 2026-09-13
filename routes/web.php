@@ -12,17 +12,70 @@ Route::get('/', function () {
 
 Route::middleware('auth')->group(function () {
 
+    /*
+    |--------------------------------------------------------------------------
+    | Categorias
+    |--------------------------------------------------------------------------
+    | Apenas administrador e gerente podem gerenciar categorias.
+    */
     Route::resource('categorias', CategoriaController::class)
         ->except('show')
         ->middleware('role:admin,gerente');
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Locais
+    |--------------------------------------------------------------------------
+    | Apenas administrador e gerente podem gerenciar locais.
+    */
     Route::resource('locais', LocalController::class)
         ->except('show')
         ->middleware('role:admin,gerente');
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Itens
+    |--------------------------------------------------------------------------
+    | Todos os usuários autenticados podem consultar.
+    | Apenas administrador e gerente podem cadastrar/editar.
+    */
     Route::resource('itens', ItemController::class)
+        ->only(['index', 'show']);
+
+    Route::resource('itens', ItemController::class)
+        ->only(['create', 'store', 'edit', 'update'])
         ->middleware('role:admin,gerente');
 
+    /*
+    |--------------------------------------------------------------------------
+    | Exclusão de itens
+    |--------------------------------------------------------------------------
+    | Somente administrador pode excluir.
+    */
+    Route::delete('itens/{item}', [ItemController::class, 'destroy'])
+        ->name('itens.destroy')
+        ->middleware('role:admin');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Movimentações
+    |--------------------------------------------------------------------------
+    | Todos podem consultar o histórico.
+    | Admin e gerente podem registrar movimentações.
+    | A exclusão será protegida pela MovimentacaoPolicy.
+    */
     Route::resource('movimentacoes', MovimentacaoController::class)
-        ->only(['index', 'create', 'store', 'destroy']);
+        ->only(['index']);
+
+    Route::resource('movimentacoes', MovimentacaoController::class)
+        ->only(['create', 'store'])
+        ->middleware('role:admin,gerente');
+
+    Route::delete(
+        'movimentacoes/{movimentacao}',
+        [MovimentacaoController::class, 'destroy']
+    )->name('movimentacoes.destroy');
 });
