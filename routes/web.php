@@ -14,4 +14,3 @@ Route::resource('categorias', CategoriaController::class)->except('show');
 Route::resource('locais', LocalController::class)->except('show');
 Route::resource('itens', ItemController::class);
 Route::resource('movimentacoes', MovimentacaoController::class)->only(['index', 'create', 'store', 'destroy']);
-
