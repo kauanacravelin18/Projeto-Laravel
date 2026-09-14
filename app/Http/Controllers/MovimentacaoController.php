@@ -9,13 +9,19 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use App\Http\Requests\StoreMovimentacaoRequest;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class MovimentacaoController extends Controller
 {
+    use AuthorizesRequests;
+
     public function index(Request $request): View
     {
         $movimentacoes = Movimentacao::with(['item', 'localOrigem', 'localDestino', 'usuario'])
-            ->when($request->filled('item_id'), fn ($query) => $query->where('item_id', $request->item_id))
+            ->when(
+                $request->filled('item_id'),
+                fn ($query) => $query->where('item_id', $request->item_id)
+            )
             ->latest()
             ->paginate(10)
             ->withQueryString();
@@ -36,7 +42,6 @@ class MovimentacaoController extends Controller
 
     public function store(StoreMovimentacaoRequest $request): RedirectResponse
     {
-
         $this->authorize('create', Movimentacao::class);
 
         $validated = $request->validated();
@@ -56,26 +61,34 @@ class MovimentacaoController extends Controller
     {
         $this->authorize('delete', $movimentacao);
 
-
         $movimentacao->delete();
 
-        return redirect()->route('movimentacoes.index')->with('success', 'Movimentação removida com sucesso.');
+        return redirect()
+            ->route('movimentacoes.index')
+            ->with('success', 'Movimentação removida com sucesso.');
     }
 
-    /**
-     * Aplica o efeito da movimentação sobre o estoque/local do item.
-     * Entrada soma quantidade, saída subtrai, transferência move o item de local.
-     */
     private function aplicarEfeitoNoItem(Movimentacao $movimentacao): void
     {
         $item = $movimentacao->item;
 
         match ($movimentacao->tipo) {
-            'entrada' => $item->increment('quantidade', $movimentacao->quantidade),
-            'saida' => $item->decrement('quantidade', min($movimentacao->quantidade, $item->quantidade)),
+            'entrada' => $item->increment(
+                'quantidade',
+                $movimentacao->quantidade
+            ),
+
+            'saida' => $item->decrement(
+                'quantidade',
+                min($movimentacao->quantidade, $item->quantidade)
+            ),
+
             'transferencia' => $movimentacao->local_destino_id
-                ? $item->update(['local_id' => $movimentacao->local_destino_id])
+                ? $item->update([
+                    'local_id' => $movimentacao->local_destino_id
+                ])
                 : null,
+
             default => null,
         };
     }
