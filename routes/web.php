@@ -8,27 +8,34 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return redirect()->route('itens.index');
+    return redirect()->route('dashboard');
 });
 
 Route::get('/dashboard', function () {
-    return redirect()->route('itens.index');
+    return view('dashboard');
 })->middleware('auth')->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::get('/profile', [ProfileController::class, 'edit'])
+        ->name('profile.edit');
+
+    Route::patch('/profile', [ProfileController::class, 'update'])
+        ->name('profile.update');
+
+    Route::delete('/profile', [ProfileController::class, 'destroy'])
+        ->name('profile.destroy');
+
 
     Route::resource('categorias', CategoriaController::class)
         ->except('show')
         ->middleware('role:admin,gerente');
 
+
     Route::resource('locais', LocalController::class)
         ->parameters(['locais' => 'local'])
         ->except('show')
         ->middleware('role:admin,gerente');
-
 
     Route::resource('itens', ItemController::class)
         ->parameters(['itens' => 'item'])
@@ -39,16 +46,20 @@ Route::middleware('auth')->group(function () {
         ->only(['create', 'store', 'edit', 'update'])
         ->middleware('role:admin,gerente');
 
+
     Route::delete('itens/{item}', [ItemController::class, 'destroy'])
         ->name('itens.destroy')
         ->middleware('role:admin');
 
+
     Route::resource('movimentacoes', MovimentacaoController::class)
         ->only(['index']);
+
 
     Route::resource('movimentacoes', MovimentacaoController::class)
         ->only(['create', 'store'])
         ->middleware('role:admin,gerente');
+
 
     Route::delete(
         'movimentacoes/{movimentacao}',
