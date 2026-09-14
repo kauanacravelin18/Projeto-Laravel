@@ -3,15 +3,113 @@
 @section('title', 'Nova categoria')
 
 @section('content')
-    <h1 class="text-2xl font-semibold mb-6">Nova categoria</h1>
 
-    <form action="{{ route('categorias.store') }}" method="POST" class="bg-white rounded-lg shadow-sm p-6 space-y-4 max-w-xl">
-        @csrf
-        @include('categorias._form')
+    {{-- Cabeçalho --}}
+    <div class="text-center mb-8">
 
-        <div class="flex justify-end gap-3 pt-2">
-            <a href="{{ route('categorias.index') }}" class="px-4 py-2 rounded-md text-sm border border-gray-300 hover:bg-gray-50">Cancelar</a>
-            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-700">Salvar</button>
+        <h1 class="text-4xl font-extrabold tracking-wide text-slate-800">
+            NOVA CATEGORIA
+        </h1>
+
+        <p class="mt-2 text-base text-slate-500">
+            Cadastre uma nova categoria no almoxarifado
+        </p>
+
+    </div>
+
+
+    {{-- Formulário --}}
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm
+                overflow-hidden max-w-2xl mx-auto">
+
+        {{-- Cabeçalho do formulário --}}
+        <div class="px-6 py-5 border-b border-slate-200 text-center">
+
+            <h2 class="text-xl font-bold tracking-wide text-slate-800">
+                Dados da categoria
+            </h2>
+
+            <p class="text-sm text-slate-500 mt-1">
+                Preencha as informações abaixo para cadastrar a categoria.
+            </p>
+
         </div>
-    </form>
+
+
+        <form action="{{ route('categorias.store') }}"
+              method="POST"
+              class="p-6">
+
+            @csrf
+
+            <div class="space-y-5">
+
+                @include('categorias._form')
+
+            </div>
+
+
+            {{-- Botões --}}
+            <div class="flex justify-between items-center gap-3
+                        pt-6 mt-6 border-t border-slate-100">
+
+                {{-- Cancelar --}}
+                <a href="{{ route('categorias.index') }}"
+                   class="inline-flex items-center gap-2
+                          px-4 py-2.5 rounded-lg
+                          text-sm font-semibold
+                          text-slate-600
+                          border border-slate-300
+                          hover:bg-slate-50
+                          transition">
+
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke-width="1.8"
+                         stroke="currentColor"
+                         class="w-4 h-4">
+
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              d="M15.75 19.5L8.25 12l7.5-7.5" />
+
+                    </svg>
+
+                    CANCELAR
+
+                </a>
+
+
+                {{-- Salvar --}}
+                <button type="submit"
+                        class="inline-flex items-center gap-2
+                               bg-slate-900 hover:bg-slate-800
+                               text-white px-5 py-2.5 rounded-lg
+                               text-sm font-semibold
+                               shadow-sm transition">
+
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke-width="2"
+                         stroke="currentColor"
+                         class="w-5 h-5">
+
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              d="M4.5 12.75l6 6 9-13.5" />
+
+                    </svg>
+
+                    SALVAR CATEGORIA
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
 @endsection
