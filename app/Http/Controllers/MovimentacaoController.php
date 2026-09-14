@@ -8,6 +8,7 @@ use App\Models\Movimentacao;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use App\Http\Requests\StoreMovimentacaoRequest;
 
 class MovimentacaoController extends Controller
 {
@@ -24,6 +25,8 @@ class MovimentacaoController extends Controller
 
     public function create(Request $request): View
     {
+        $this->authorize('create', Movimentacao::class);
+
         return view('movimentacoes.create', [
             'itens' => Item::orderBy('nome')->get(),
             'locais' => Local::orderBy('nome')->get(),
@@ -31,16 +34,12 @@ class MovimentacaoController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(StoreMovimentacaoRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'item_id' => 'required|exists:itens,id',
-            'tipo' => 'required|in:entrada,saida,transferencia',
-            'quantidade' => 'required|integer|min:1',
-            'local_origem_id' => 'nullable|exists:locais,id',
-            'local_destino_id' => 'nullable|exists:locais,id|different:local_origem_id',
-            'observacao' => 'nullable|string|max:1000',
-        ]);
+
+        $this->authorize('create', Movimentacao::class);
+
+        $validated = $request->validated();
 
         $validated['user_id'] = auth()->id();
 
@@ -48,11 +47,16 @@ class MovimentacaoController extends Controller
 
         $this->aplicarEfeitoNoItem($movimentacao);
 
-        return redirect()->route('movimentacoes.index')->with('success', 'Movimentação registrada com sucesso.');
+        return redirect()
+            ->route('movimentacoes.index')
+            ->with('success', 'Movimentação registrada com sucesso.');
     }
 
     public function destroy(Movimentacao $movimentacao): RedirectResponse
     {
+        $this->authorize('delete', $movimentacao);
+
+
         $movimentacao->delete();
 
         return redirect()->route('movimentacoes.index')->with('success', 'Movimentação removida com sucesso.');
