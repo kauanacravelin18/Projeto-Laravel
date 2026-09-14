@@ -4,69 +4,45 @@ use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\LocalController;
 use App\Http\Controllers\MovimentacaoController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return redirect()->route('itens.index');
 });
 
-Route::middleware('auth')->group(function () {
+Route::get('/dashboard', function () {
+    return redirect()->route('itens.index');
+})->middleware('auth')->name('dashboard');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Categorias
-    |--------------------------------------------------------------------------
-    | Apenas administrador e gerente podem gerenciar categorias.
-    */
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
     Route::resource('categorias', CategoriaController::class)
         ->except('show')
         ->middleware('role:admin,gerente');
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Locais
-    |--------------------------------------------------------------------------
-    | Apenas administrador e gerente podem gerenciar locais.
-    */
     Route::resource('locais', LocalController::class)
+        ->parameters(['locais' => 'local'])
         ->except('show')
         ->middleware('role:admin,gerente');
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Itens
-    |--------------------------------------------------------------------------
-    | Todos os usuários autenticados podem consultar.
-    | Apenas administrador e gerente podem cadastrar/editar.
-    */
     Route::resource('itens', ItemController::class)
+        ->parameters(['itens' => 'item'])
         ->only(['index', 'show']);
 
     Route::resource('itens', ItemController::class)
+        ->parameters(['itens' => 'item'])
         ->only(['create', 'store', 'edit', 'update'])
         ->middleware('role:admin,gerente');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Exclusão de itens
-    |--------------------------------------------------------------------------
-    | Somente administrador pode excluir.
-    */
     Route::delete('itens/{item}', [ItemController::class, 'destroy'])
         ->name('itens.destroy')
         ->middleware('role:admin');
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Movimentações
-    |--------------------------------------------------------------------------
-    | Todos podem consultar o histórico.
-    | Admin e gerente podem registrar movimentações.
-    | A exclusão será protegida pela MovimentacaoPolicy.
-    */
     Route::resource('movimentacoes', MovimentacaoController::class)
         ->only(['index']);
 
@@ -79,3 +55,5 @@ Route::middleware('auth')->group(function () {
         [MovimentacaoController::class, 'destroy']
     )->name('movimentacoes.destroy');
 });
+
+require __DIR__.'/auth.php';
