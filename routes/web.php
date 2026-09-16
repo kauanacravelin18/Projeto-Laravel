@@ -37,14 +37,18 @@ Route::middleware('auth')->group(function () {
         ->except('show')
         ->middleware('role:admin,gerente');
 
-    Route::resource('itens', ItemController::class)
-        ->parameters(['itens' => 'item'])
-        ->only(['index', 'show']);
-
+    // IMPORTANTE: as rotas com segmento fixo (create, store, edit, update)
+    // precisam ser registradas ANTES da rota com parâmetro {item} (index, show).
+    // Caso contrário, "/itens/create" é interpretado como "/itens/{item}"
+    // com item = "create", e o Laravel retorna 404 ao não achar esse registro.
     Route::resource('itens', ItemController::class)
         ->parameters(['itens' => 'item'])
         ->only(['create', 'store', 'edit', 'update'])
         ->middleware('role:admin,gerente');
+
+    Route::resource('itens', ItemController::class)
+        ->parameters(['itens' => 'item'])
+        ->only(['index', 'show']);
 
 
     Route::delete('itens/{item}', [ItemController::class, 'destroy'])
