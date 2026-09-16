@@ -71,3 +71,7 @@ A divisão abaixo foi baseada nas contribuições registradas no histórico de c
 - HTML
 - CSS
 - JavaScript
+
+## Para rodar o sistema 
+
+- No terminal rodar NPM RUN DEV (para aparecer as aplicações front end)
